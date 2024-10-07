@@ -22,7 +22,7 @@ namespace DB2StructGenerator.StructGenerators
                 using StreamWriter writer = new($"CsStructs\\{pair.Key.Replace("_", "")}Entry.cs");
                 writer.WriteLine("using DBFileReaderLib.Attributes;");
                 writer.WriteLine();
-                writer.WriteLine("namespace WowPacketParser.DBC.Structures.InsertVersionHere");
+                writer.WriteLine($"namespace WowPacketParser.DBC.Structures.{GetExpansionNameForBuild(pair.Value.Item2.builds)}");
                 writer.WriteLine("{");
                 writer.WriteLine($"{tabSpaces}[DBFile(\"{pair.Key}\")]");
                 writer.WriteLine($"{tabSpaces}public sealed class {pair.Key.Replace("_", "")}Entry");
@@ -88,6 +88,35 @@ namespace DB2StructGenerator.StructGenerators
             }
 
             return new FieldValue(fieldType, fieldName, versionDefinition.arrLength, versionDefinition.isID);
+        }
+
+        private string GetExpansionNameForBuild(Build[] builds)
+        {
+            foreach (Build build in builds)
+            {
+                if (build.build == buildNumber)
+                {
+                    switch (build.expansion)
+                    {
+                        case 1: return build.major > 12 ? "ClassicEra" : "Classic";
+                        case 2: return build.major > 4 ? "TheBurningCrusadeClassic" : "TheBurningCrusade";
+                        case 3: return build.major > 3 ? "WrathOfTheLichKingClassic" : "WrathOfTheLichKing";
+                        case 4: return build.major > 3 ? "CataclysmClassic" : "Cataclysm";
+                        case 5: return "MistsOfPandaria";
+                        case 6: return "WarlordsOfDraenor";
+                        case 7: return "Legion";
+                        case 8: return "BattleForAzeroth";
+                        case 9: return "Shadowlands";
+                        case 10: return "Dragonflight";
+                        case 11: return "TheWarWithin";
+                        default:
+                            break;
+                    }
+                    break;
+                }
+            }
+
+            return "UnknownExpansion";
         }
     }
 }
