@@ -15,18 +15,20 @@ namespace DB2StructGenerator.StructGenerators
 
         public class FieldValue
         {
-            public FieldValue(string fieldType, string fieldName, int arraySize = 0, bool index = false)
+            public FieldValue(string fieldType, string fieldName, int arraySize = 0, bool index = false, bool noInline = false)
             {
                 FieldType = fieldType;
                 FieldName = fieldName;
                 ArraySize = arraySize;
                 Index = index;
+                NoInlinine = noInline;
             }
 
             public string FieldType { get; set; }
             public string FieldName { get; set; }
             public int ArraySize { get; set; }
             public bool Index { get; set; }
+            public bool NoInlinine { get; set; }
         }
 
         public StructGeneratorBase(Dictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber)

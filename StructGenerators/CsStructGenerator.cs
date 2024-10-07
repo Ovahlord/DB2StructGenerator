@@ -39,7 +39,7 @@ namespace DB2StructGenerator.StructGenerators
                     }
 
                     if (field.Index)
-                        writer.WriteLine($"{tabSpaces}{tabSpaces}[Index(true)]");
+                        writer.WriteLine($"{tabSpaces}{tabSpaces}[Index({field.NoInlinine.ToString().ToLower()})]");
 
                     writer.WriteLine($"{tabSpaces}{tabSpaces}public {field.FieldType} {field.FieldName};");
                 }
@@ -87,7 +87,7 @@ namespace DB2StructGenerator.StructGenerators
                     break;
             }
 
-            return new FieldValue(fieldType, fieldName, versionDefinition.arrLength, versionDefinition.isID);
+            return new FieldValue(fieldType, fieldName, versionDefinition.arrLength, versionDefinition.isID, versionDefinition.isNonInline);
         }
 
         private string GetExpansionNameForBuild(Build[] builds)
