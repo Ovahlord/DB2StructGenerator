@@ -21,14 +21,14 @@ namespace DB2StructGenerator.StructGenerators
                 FieldName = fieldName;
                 ArraySize = arraySize;
                 Index = index;
-                NoInlinine = noInline;
+                NoInline = noInline;
             }
 
             public string FieldType { get; set; }
             public string FieldName { get; set; }
             public int ArraySize { get; set; }
             public bool Index { get; set; }
-            public bool NoInlinine { get; set; }
+            public bool NoInline { get; set; }
         }
 
         public StructGeneratorBase(Dictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber)

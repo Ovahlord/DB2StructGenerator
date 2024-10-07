@@ -39,7 +39,7 @@ namespace DB2StructGenerator.StructGenerators
                     }
 
                     if (field.Index)
-                        writer.WriteLine($"{tabSpaces}{tabSpaces}[Index({field.NoInlinine.ToString().ToLower()})]");
+                        writer.WriteLine($"{tabSpaces}{tabSpaces}[Index({field.NoInline.ToString().ToLower()})]");
 
                     writer.WriteLine($"{tabSpaces}{tabSpaces}public {field.FieldType} {field.FieldName};");
                 }
