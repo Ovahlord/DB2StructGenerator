@@ -15,13 +15,14 @@ namespace DB2StructGenerator.StructGenerators
 
         public class FieldValue
         {
-            public FieldValue(string fieldType, string fieldName, int arraySize = 0, bool index = false, bool noInline = false)
+            public FieldValue(string fieldType, string fieldName, int arraySize = 0, bool index = false, bool noInline = false, bool isRelation = false)
             {
                 FieldType = fieldType;
                 FieldName = fieldName;
                 ArraySize = arraySize;
                 Index = index;
                 NoInline = noInline;
+                IsRelation = isRelation;
             }
 
             public string FieldType { get; set; }
@@ -29,6 +30,7 @@ namespace DB2StructGenerator.StructGenerators
             public int ArraySize { get; set; }
             public bool Index { get; set; }
             public bool NoInline { get; set; }
+            public bool IsRelation { get; set; }
         }
 
         public StructGeneratorBase(Dictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber)
@@ -77,7 +79,7 @@ namespace DB2StructGenerator.StructGenerators
 
         public static bool IsUnsignedField(Structs.Definition versionDefinition)
         {
-            return !versionDefinition.isSigned || versionDefinition.isID || versionDefinition.isRelation;
+            return !versionDefinition.isSigned || versionDefinition.isID || (versionDefinition.isRelation && !versionDefinition.isNonInline);
         }
 
         public static string SanitizeFieldName(string fieldName)
