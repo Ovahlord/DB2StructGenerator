@@ -1,6 +1,7 @@
 ﻿using DB2StructGenerator.HardcodedData;
 using DBDefsLib;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -45,7 +46,7 @@ namespace DB2StructGenerator.StructGenerators
 
         private List<HardcodedMethods> hardcodedMethods = [];
 
-        public CppStructGenerator(Dictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber) :
+        public CppStructGenerator(ConcurrentDictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber) :
             base(dbddefinitions, expectedBuildNumber)
         {
             hardcodedMethods.Add(new AreaTableMethods());

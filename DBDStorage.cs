@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,16 +10,15 @@ namespace DB2StructGenerator
 {
     public class DBDStorage
     {
-        public Dictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> Definitions { get; private set; } = [];
+        public ConcurrentDictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> Definitions { get; private set; } = [];
 
         public void ReadDefinitions(int forBuildNumber)
         {
-            DBDReader reader = new();
-
-            foreach (string fileName in Directory.GetFiles("definitions"))
+            Parallel.ForEach(Directory.GetFiles("definitions"), fileName =>
             {
                 try
                 {
+                    DBDReader reader = new();
                     Structs.DBDefinition definition = reader.Read(File.OpenRead(fileName));
 
                     bool hasBuild = false;
@@ -28,7 +28,7 @@ namespace DB2StructGenerator
                         {
                             if (build.build == forBuildNumber)
                             {
-                                Definitions.Add(Path.GetFileNameWithoutExtension(fileName), new Tuple<Structs.DBDefinition, Structs.VersionDefinitions>(definition, versionDef));
+                                Definitions.TryAdd(Path.GetFileNameWithoutExtension(fileName), new Tuple<Structs.DBDefinition, Structs.VersionDefinitions>(definition, versionDef));
                                 Console.WriteLine($"Found {Path.GetFileNameWithoutExtension(fileName)}.db2 definition for build {forBuildNumber}");
                                 hasBuild = true;
                                 break;
@@ -43,7 +43,7 @@ namespace DB2StructGenerator
                 {
                     Console.WriteLine(ex);
                 }
-            }
+            });
 
             Console.WriteLine($"\nSuccessfully loaded {Definitions.Count} definitions for build {forBuildNumber}\n");
         }

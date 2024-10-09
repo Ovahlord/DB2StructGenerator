@@ -1,6 +1,7 @@
 ﻿using DB2StructGenerator.HardcodedData;
 using DBDefsLib;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,14 +11,14 @@ namespace DB2StructGenerator.StructGenerators
 {
     public class CsStructGenerator : StructGeneratorBase
     {
-        public CsStructGenerator(Dictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber) :
+        public CsStructGenerator(ConcurrentDictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber) :
             base(dbddefinitions, expectedBuildNumber) { }
 
         public override void GenerateStructs()
         {
             Directory.CreateDirectory("CsStructs");
 
-            foreach (KeyValuePair<string, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> pair in definitions)
+            Parallel.ForEach(definitions, pair =>
             {
                 using StreamWriter writer = new($"CsStructs\\{pair.Key.Replace("_", "")}Entry.cs");
                 writer.WriteLine("using DBFileReaderLib.Attributes;");
@@ -49,7 +50,7 @@ namespace DB2StructGenerator.StructGenerators
 
                 writer.WriteLine(tabSpaces + "}");
                 writer.WriteLine("}");
-            }
+            });
         }
 
         public override FieldValue GenerateField(Structs.ColumnDefinition columnDefinition, Structs.Definition versionDefinition)

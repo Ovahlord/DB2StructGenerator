@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace DB2StructGenerator.StructGenerators
 {
     public abstract class StructGeneratorBase
     {
-        protected Dictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> definitions;
+        protected ConcurrentDictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> definitions;
         protected int buildNumber;
         protected string tabSpaces = "    ";
 
@@ -33,7 +34,7 @@ namespace DB2StructGenerator.StructGenerators
             public bool IsRelation { get; set; }
         }
 
-        public StructGeneratorBase(Dictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber)
+        public StructGeneratorBase(ConcurrentDictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber)
         {
             definitions = dbddefinitions;
             buildNumber = expectedBuildNumber;
