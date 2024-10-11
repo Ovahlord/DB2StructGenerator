@@ -14,6 +14,7 @@ namespace DB2StructGenerator
                 return;
             }
 
+            Console.WriteLine("NOTE: if you want to update an existing DB2Structure.h file, please put the old header file into this application's directory and use the 'DB2StructureUpdated.h' for updating your source");
             Console.WriteLine("Please insert build number (e.g. 56713)");
 
             int buildNumber = 0;

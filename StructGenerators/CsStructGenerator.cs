@@ -1,5 +1,4 @@
-﻿using DB2StructGenerator.HardcodedData;
-using DBDefsLib;
+﻿using DBDefsLib;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

@@ -1,12 +1,6 @@
-﻿using DB2StructGenerator.HardcodedData;
+﻿
 using DBDefsLib;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DB2StructGenerator.StructGenerators
 {
@@ -44,46 +38,125 @@ namespace DB2StructGenerator.StructGenerators
             $"#pragma pack(pop){Environment.NewLine}" +
             $"#endif";
 
-        private List<HardcodedMethods> hardcodedMethods = [];
-
         public CppStructGenerator(ConcurrentDictionary<string /*DB2Name*/, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> dbddefinitions, int expectedBuildNumber) :
             base(dbddefinitions, expectedBuildNumber)
         {
-            hardcodedMethods.Add(new AreaTableMethods());
         }
 
         public override void GenerateStructs()
         {
-            using StreamWriter writer = new("DB2Structure.h");
 
-            writer.WriteLine(fileHeader);
-
-            foreach (KeyValuePair<string, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> pair in definitions)
+            // An existing db2 structure header will be updated
+            if (File.Exists("DB2Structure.h"))
             {
-                writer.WriteLine($"// structure for {pair.Key}.db2");
-                writer.WriteLine($"struct {pair.Key.Replace("_", "")}Entry");
-                writer.WriteLine("{");
+                // We will read through the structs and write the updated file at the same time
+                using StreamReader reader = new("DB2Structure.h");
+                using StreamWriter writer = new("DB2StructureUpdated.h");
 
-                FieldValue[] fields = GenerateFields(pair.Value.Item1, pair.Value.Item2);
-                foreach (FieldValue field in fields)
-                    writer.WriteLine($"{tabSpaces}{field.FieldType} {field.FieldName};");
-
-                foreach (HardcodedMethods methods in hardcodedMethods)
+                bool isInStruct = false;
+                bool isInMethodSegment = false;
+                string? line = reader.ReadLine();
+                while (line != null)
                 {
-                    if (methods.StorageName == pair.Key)
+
+
+                    // This block here will start writing the structure and fields of the db2 entry. Once this is done, we scan the rest of the file for methods
+                    if (line.StartsWith("struct"))
+                    {
+                        // Try to extract the db2 entry name from the struct
+                        string[] structHeader = line.Split(' ');
+                        if (structHeader.Length <= 1)
+                        {
+                            Console.Write($"DB2Structure.h line with content '{line}' could not be fully read. Skipped");
+                            line = reader.ReadLine();
+                            continue;
+                        }
+
+                        // Try to find a definition for the db2 entry
+                        string db2EntryName = structHeader[1].Replace("_", "");
+                        var foundDefinitions = definitions.Where(x =>
+                        {
+                            return $"{x.Key.Replace("_", "")}Entry" == db2EntryName;
+                        });
+
+                        if (foundDefinitions == null || !foundDefinitions.Any())
+                        {
+                            Console.Write($"A definition for '{db2EntryName}' could not be found. Perhaps it got removed in this build or the definitions are not up to date. Skipped");
+                            line = reader.ReadLine();
+                            continue;
+                        }
+
+                        // write the new structure
+                        KeyValuePair<string, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> pair = foundDefinitions.First();
+                        writer.WriteLine($"// structure for {pair.Key}.db2");
+                        writer.WriteLine($"struct {pair.Key.Replace("_", "")}Entry");
+                        writer.WriteLine("{");
+                        FieldValue[] fields = GenerateFields(pair.Value.Item1, pair.Value.Item2);
+                        foreach (FieldValue field in fields)
+                            writer.WriteLine($"{tabSpaces}{field.FieldType} {field.FieldName};");
+
+                        isInStruct = true;
+                    }
+
+                    // end of the struct has been reached. Commence with plain line copying
+                    if (isInStruct && line.StartsWith("};"))
+                    {
+                        writer.WriteLine(line);
+                        line = reader.ReadLine();
+                        isInStruct = false;
+                        isInMethodSegment = false;
+                        continue;
+                    }
+
+                    if (isInStruct && !isInMethodSegment && line.Contains('(') && line.Contains("const"))
                     {
                         writer.WriteLine("");
-                        writer.WriteLine(tabSpaces + "// Methods");
-                        foreach (string method in methods.Methods)
-                            writer.WriteLine($"{tabSpaces}{method}");
+                        isInMethodSegment = true;
                     }
+
+                    if (!isInStruct || isInMethodSegment)
+                        writer.WriteLine(line);
+
+                    line = reader.ReadLine();
                 }
 
-                writer.WriteLine("};");
-                writer.WriteLine("");
             }
+            else
+            {
+                // Otherwise we will generate a new one from scratch. This one will need manual fixups to fit into whatever methods and standards apply to the source
+                using StreamWriter writer = new("DB2StructureGenerated.h");
 
-            writer.WriteLine(fileFooter);
+                writer.WriteLine(fileHeader);
+
+                foreach (KeyValuePair<string, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> pair in definitions)
+                {
+                    writer.WriteLine($"// structure for {pair.Key}.db2");
+                    writer.WriteLine($"struct {pair.Key.Replace("_", "")}Entry");
+                    writer.WriteLine("{");
+
+                    FieldValue[] fields = GenerateFields(pair.Value.Item1, pair.Value.Item2);
+                    foreach (FieldValue field in fields)
+                        writer.WriteLine($"{tabSpaces}{field.FieldType} {field.FieldName};");
+
+                    /*
+                    foreach (HardcodedMethods methods in hardcodedMethods)
+                    {
+                        if (methods.StorageName == pair.Key)
+                        {
+                            writer.WriteLine("");
+                            writer.WriteLine(tabSpaces + "// Methods");
+                            foreach (string method in methods.Methods)
+                                writer.WriteLine($"{tabSpaces}{method}");
+                        }
+                    }
+                    */
+
+                    writer.WriteLine("};");
+                    writer.WriteLine("");
+                }
+
+                writer.WriteLine(fileFooter);
+            }
         }
 
         public override FieldValue GenerateField(Structs.ColumnDefinition columnDefinition, Structs.Definition versionDefinition)
