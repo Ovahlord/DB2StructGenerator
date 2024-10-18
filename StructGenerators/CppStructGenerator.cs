@@ -166,7 +166,7 @@ namespace DB2StructGenerator.StructGenerators
             switch (columnDefinition.type)
             {
                 case "int":
-                    fieldType = $"{(IsUnsignedField(versionDefinition) ? "u" : "")}int{versionDefinition.size}";
+                    fieldType = $"{(IsUnsignedField(versionDefinition, true) ? "u" : "")}int{versionDefinition.size}";
                     break;
                 case "locstring":
                     fieldType = "LocalizedString";

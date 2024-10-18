@@ -59,11 +59,11 @@ namespace DB2StructGenerator.StructGenerators
             switch (columnDefinition.type)
             {
                 case "int":
-                    fieldType = $"{(IsUnsignedField(versionDefinition) ? "u" : "")}";
+                    fieldType = $"{(IsUnsignedField(versionDefinition, false) ? "u" : "")}";
                     switch (versionDefinition.size)
                     {
                         case 8:
-                            fieldType = $"{(IsUnsignedField(versionDefinition) ? "" : "s")}byte";
+                            fieldType = $"{(IsUnsignedField(versionDefinition, false) ? "" : "s")}byte";
                             break;
                         case 16:
                             fieldType += "short";
