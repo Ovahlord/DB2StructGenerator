@@ -81,7 +81,7 @@ namespace DB2StructGenerator.StructGenerators
         public static bool IsUnsignedField(Structs.Definition versionDefinition, bool cpp)
         {
             if (cpp)
-                return !versionDefinition.isSigned || versionDefinition.isID || (versionDefinition.isRelation && versionDefinition.isNonInline);
+                return !versionDefinition.isSigned || versionDefinition.isID || versionDefinition.isRelation || (versionDefinition.isRelation && versionDefinition.isNonInline);
 
             return !versionDefinition.isSigned || versionDefinition.isID || (versionDefinition.isRelation && !versionDefinition.isNonInline);
         }

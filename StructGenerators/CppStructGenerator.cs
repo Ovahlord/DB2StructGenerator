@@ -182,7 +182,7 @@ namespace DB2StructGenerator.StructGenerators
                     break;
             }
 
-            if (fieldName.Contains("RaceMask"))
+            if (fieldName.EndsWith("RaceMask") || fieldName.EndsWith("AllowableRace"))
                 fieldType = $"Trinity::RaceMask<{fieldType}>";
 
             if (versionDefinition.arrLength > 0)
