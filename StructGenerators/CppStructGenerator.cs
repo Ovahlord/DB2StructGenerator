@@ -131,7 +131,7 @@ namespace DB2StructGenerator.StructGenerators
                 foreach (KeyValuePair<string, Tuple<Structs.DBDefinition, Structs.VersionDefinitions>> pair in definitions)
                 {
                     writer.WriteLine($"// structure for {pair.Key}.db2");
-                    writer.WriteLine($"struct {pair.Key.Replace("_", "")}Entry");
+                    writer.WriteLine($"struct {pair.Key}Entry");
                     writer.WriteLine("{");
 
                     FieldValue[] fields = GenerateFields(pair.Value.Item1, pair.Value.Item2);
