@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using DBDefsLib;
@@ -68,7 +69,7 @@ namespace DB2StructGenerator.StructGenerators
                     continue;
 
                 int duplicate = 0;
-                foreach (int fieldIndex in duplicateUnknownFields.Value)
+                foreach (int fieldIndex in CollectionsMarshal.AsSpan(duplicateUnknownFields.Value))
                 {
                     fields[fieldIndex].FieldName += $"_{duplicate}";
                     ++duplicate;

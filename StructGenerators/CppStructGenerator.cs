@@ -58,8 +58,6 @@ namespace DB2StructGenerator.StructGenerators
                 string? line = reader.ReadLine();
                 while (line != null)
                 {
-
-
                     // This block here will start writing the structure and fields of the db2 entry. Once this is done, we scan the rest of the file for methods
                     if (line.StartsWith("struct"))
                     {
@@ -91,8 +89,10 @@ namespace DB2StructGenerator.StructGenerators
                         writer.WriteLine($"// structure for {pair.Key}.db2");
                         writer.WriteLine($"struct {pair.Key.Replace("_", "")}Entry");
                         writer.WriteLine("{");
+
                         FieldValue[] fields = GenerateFields(pair.Value.Item1, pair.Value.Item2);
-                        foreach (FieldValue field in fields)
+                        ReadOnlySpan<FieldValue> span = fields.AsSpan();
+                        foreach (FieldValue field in span)
                             writer.WriteLine($"{tabSpaces}{field.FieldType} {field.FieldName};");
 
                         isInStruct = true;
@@ -135,7 +135,8 @@ namespace DB2StructGenerator.StructGenerators
                     writer.WriteLine("{");
 
                     FieldValue[] fields = GenerateFields(pair.Value.Item1, pair.Value.Item2);
-                    foreach (FieldValue field in fields)
+                    ReadOnlySpan<FieldValue> span = fields.AsSpan();
+                    foreach (FieldValue field in span)
                         writer.WriteLine($"{tabSpaces}{field.FieldType} {field.FieldName};");
 
                     /*

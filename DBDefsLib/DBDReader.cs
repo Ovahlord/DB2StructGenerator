@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using static DBDefsLib.Structs;
 
 namespace DBDefsLib
@@ -176,7 +177,7 @@ namespace DBDefsLib
                 if (line.StartsWith("BUILD"))
                 {
                     var splitBuilds = line.Remove(0, 6).Split(new string[] { ", " }, StringSplitOptions.None);
-                    foreach (var splitBuild in splitBuilds)
+                    foreach (var splitBuild in splitBuilds.AsSpan())
                     {
                         if (splitBuild.Contains("-"))
                         {
@@ -342,7 +343,7 @@ namespace DBDefsLib
 
                 columnDefinitionDictionary = newColumnDefDict;
 
-                foreach (var version in versionDefinitions)
+                foreach (var version in CollectionsMarshal.AsSpan(versionDefinitions))
                 {
                     foreach (var build in version.builds)
                     {
@@ -356,7 +357,7 @@ namespace DBDefsLib
                         }
                     }
 
-                    foreach (var layoutHash in version.layoutHashes)
+                    foreach (var layoutHash in version.layoutHashes.AsSpan())
                     {
                         if (seenLayoutHashes.Contains(layoutHash))
                         {
@@ -374,7 +375,7 @@ namespace DBDefsLib
                     }
 
                     // Check if int/uint columns have sizes set or the other way around
-                    foreach (var definition in version.definitions)
+                    foreach (var definition in version.definitions.AsSpan())
                     {
                         if ((columnDefinitionDictionary[definition.name].type == "int" || columnDefinitionDictionary[definition.name].type == "uint") && definition.size == 0)
                         {

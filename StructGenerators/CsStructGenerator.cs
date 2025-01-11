@@ -29,7 +29,8 @@ namespace DB2StructGenerator.StructGenerators
                 writer.WriteLine(tabSpaces + "{");
 
                 FieldValue[] fields = GenerateFields(pair.Value.Item1, pair.Value.Item2);
-                foreach (FieldValue field in fields)
+                ReadOnlySpan<FieldValue> span = fields.AsSpan();
+                foreach (FieldValue field in span)
                 {
                     if (field.ArraySize > 0)
                     {

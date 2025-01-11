@@ -33,7 +33,7 @@ namespace DB2StructGenerator
             DBDStorage storage = new();
             storage.ReadDefinitions(buildNumber);
 
-            if (storage.Definitions.Count == 0)
+            if (storage.Definitions.IsEmpty)
             {
                 Console.WriteLine("Definitions have been read but no valid data has been extracted. Please make sure the definitions are up to date or update the DBDefsLib if the format should have changed.");
                 printExitPrompt();

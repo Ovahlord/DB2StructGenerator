@@ -22,13 +22,14 @@ namespace DB2StructGenerator
                     Structs.DBDefinition definition = reader.Read(File.OpenRead(fileName));
 
                     bool hasBuild = false;
-                    foreach (Structs.VersionDefinitions versionDef in definition.versionDefinitions)
+
+                    ReadOnlySpan<Structs.VersionDefinitions> span = definition.versionDefinitions.AsSpan();
+                    foreach (Structs.VersionDefinitions versionDef in span)
                     {
-                        foreach (Build build in versionDef.builds)
+                        foreach (Build build in versionDef.builds.Where(b => b.build == forBuildNumber))
                         {
-                            if (build.build == forBuildNumber)
+                            if (Definitions.TryAdd(Path.GetFileNameWithoutExtension(fileName), new Tuple<Structs.DBDefinition, Structs.VersionDefinitions>(definition, versionDef)))
                             {
-                                Definitions.TryAdd(Path.GetFileNameWithoutExtension(fileName), new Tuple<Structs.DBDefinition, Structs.VersionDefinitions>(definition, versionDef));
                                 Console.WriteLine($"Found {Path.GetFileNameWithoutExtension(fileName)}.db2 definition for build {forBuildNumber}");
                                 hasBuild = true;
                                 break;
