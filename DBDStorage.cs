@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using DBDefsLib;
 
 namespace DB2StructGenerator
@@ -21,23 +16,16 @@ namespace DB2StructGenerator
                     DBDReader reader = new();
                     Structs.DBDefinition definition = reader.Read(File.OpenRead(fileName));
 
-                    bool hasBuild = false;
-
-                    ReadOnlySpan<Structs.VersionDefinitions> span = definition.versionDefinitions.AsSpan();
-                    foreach (Structs.VersionDefinitions versionDef in span)
+                    foreach (Structs.VersionDefinitions versionDef in definition.versionDefinitions.AsSpan())
                     {
-                        foreach (Build build in versionDef.builds.Where(b => b.build == forBuildNumber))
+                        if (versionDef.builds.Any(b => b.build == forBuildNumber) || versionDef.buildRanges.Any(br => (forBuildNumber >= br.minBuild.build || forBuildNumber <= br.maxBuild.build)))
                         {
                             if (Definitions.TryAdd(Path.GetFileNameWithoutExtension(fileName), new Tuple<Structs.DBDefinition, Structs.VersionDefinitions>(definition, versionDef)))
                             {
                                 Console.WriteLine($"Found {Path.GetFileNameWithoutExtension(fileName)}.db2 definition for build {forBuildNumber}");
-                                hasBuild = true;
                                 break;
                             }
                         }
-
-                        if (hasBuild)
-                            break;
                     }
                 }
                 catch (Exception ex)
