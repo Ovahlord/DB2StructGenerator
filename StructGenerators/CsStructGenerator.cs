@@ -113,6 +113,7 @@ namespace DB2StructGenerator.StructGenerators
                         case 9: return "Shadowlands";
                         case 10: return "Dragonflight";
                         case 11: return "TheWarWithin";
+                        case 12: return "Midnight";
                         default:
                             break;
                     }
