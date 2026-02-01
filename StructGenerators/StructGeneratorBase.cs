@@ -99,7 +99,7 @@ namespace DB2StructGenerator.StructGenerators
                 }
             }
             else
-                fieldName = string.Join("", fieldName.Replace("_lang", "").Split("_").Select(s => s = char.ToUpper(s[0]) + s.Substring(1)).ToArray());
+                fieldName = string.Join("", fieldName.Replace("_lang", "").Split("_").Where(s => !string.IsNullOrEmpty(s)).Select(s => s = char.ToUpper(s[0]) + s.Substring(1)).ToArray());
 
             return fieldName;
         }
