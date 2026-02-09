@@ -18,7 +18,7 @@ namespace DB2StructGenerator
 
                     foreach (Structs.VersionDefinitions versionDef in definition.versionDefinitions.AsSpan())
                     {
-                        if (versionDef.builds.Any(b => b.build == forBuildNumber) || versionDef.buildRanges.Any(br => (forBuildNumber >= br.minBuild.build || forBuildNumber <= br.maxBuild.build)))
+                        if (versionDef.builds.Any(b => b.build == forBuildNumber) || versionDef.buildRanges.Any(br => (forBuildNumber >= br.minBuild.build && forBuildNumber <= br.maxBuild.build)))
                         {
                             if (Definitions.TryAdd(Path.GetFileNameWithoutExtension(fileName), new Tuple<Structs.DBDefinition, Structs.VersionDefinitions>(definition, versionDef)))
                             {
